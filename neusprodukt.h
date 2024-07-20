@@ -22,6 +22,9 @@ private:
     Ui::NeusProdukt *ui;
     Speicher& speicher = Speicher::instance();
 
+    //Speichert wenn änderungen gemacht werden die nicht gespeichert werden
+    quint8 aenderungenNichtGespeichert;
+
 
 private slots:
     void maxProduktSetzen();
@@ -30,6 +33,9 @@ private slots:
     void aktuellesProduktSetzen(quint64 wert);
     bool aktuelleProduktPruefen(quint64 aktuellesProdukt);
     void produkDatenSetzen(quint64 wert);
+
+public slots:
+    void closeEvent(QCloseEvent *event);
 
 };
 

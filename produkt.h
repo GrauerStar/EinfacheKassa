@@ -2,6 +2,7 @@
 #define PRODUKT_H
 
 #include <QString>
+#include <QCloseEvent>
 
 
 class Produkt
@@ -37,6 +38,9 @@ private:
     QString name;
     QString info;
     qint8 mwst;
+
+
+
 
 };
 

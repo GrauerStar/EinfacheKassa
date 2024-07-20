@@ -12,6 +12,9 @@ class Produkt;
 class Speicher
 {
 public:
+    //Sicherheitscode
+    quint64 SpeicherSicherheitscode = 1306;
+
     //Funktionen
     void addProdukt(Produkt &produkt);
 
@@ -37,6 +40,7 @@ public:
 private:
     Speicher();
     ~Speicher();
+
 
     Speicher(const Speicher&) = delete;
     Speicher& operator=(const Speicher&) = delete;

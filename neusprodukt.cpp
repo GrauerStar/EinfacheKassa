@@ -7,6 +7,8 @@ NeusProdukt::NeusProdukt(QWidget *parent)
 {
     ui->setupUi(this);
 
+    aenderungenNichtGespeichert = 0;
+
     //setup
     maxProduktSetzen();
     aktuellesProduktSetzen(speicher.aktuellesProduktVisuell());
@@ -137,3 +139,36 @@ void NeusProdukt::produkDatenSetzen(quint64 wert)
 
 }
 
+void NeusProdukt::closeEvent(QCloseEvent *event)
+{
+    if(aenderungenNichtGespeichert > 0)
+    {
+        // Erstellung der QMessageBox
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Änderungen nicht gespeichert");
+        msgBox.setText("Änderungen wurden nicht gespeichert. Wollen Sie wirklich schließen?");
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        msgBox.setDefaultButton(QMessageBox::No);
+
+        // Ändern der Texte der Buttons
+        msgBox.button(QMessageBox::Yes)->setText("Ja");
+        msgBox.button(QMessageBox::No)->setText("Nein");
+
+        // Anzeigen der Nachricht und Rückgabe des geklickten Buttons
+        QMessageBox::StandardButton closeButton = static_cast<QMessageBox::StandardButton>(msgBox.exec());
+
+        // Entscheidung basierend auf der Benutzerwahl
+        if(closeButton == QMessageBox::No)
+        {
+            event->ignore();
+        }
+        else
+        {
+            event->accept();
+        }
+    }
+    else
+    {
+        event->accept();
+    }
+}
