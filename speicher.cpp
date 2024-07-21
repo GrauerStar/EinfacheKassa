@@ -58,7 +58,8 @@ QList<Produkt> *Speicher::getProduktePointer()
 
 quint64 Speicher::anzahlProdukte()
 {
-    return m_produkte.size();
+    //-1 weil 0 das Debug ist
+    return m_produkte.size() -1 ;
 }
 
 const quint8* Speicher::getMwst()

@@ -36,13 +36,17 @@ private slots:
     void maxProduktSetzen();
     void naechstesProdukt();
     void vorherigesProdukt();
-    void aktuellesProduktSetzen(quint64 wert);
     bool aktuelleProduktPruefen(quint64 aktuellesProdukt);
     void produkDatenSetzen(quint64 wert);
     bool sicherheitesFrageUngespeichert(quint8 frage);
     void speichern();
     void gehZuArtNrAbfrage();
     void springZuProdukt(quint64 indexProduktListe);
+    void springenWenObenEingegeben();
+    void springenZuErsten();
+    void springenZuLetzten();
+    void loescheLineEditsNonAuto();
+    void erstelleNeuesProdukt();
 
 public slots:
     void closeEvent(QCloseEvent *event);

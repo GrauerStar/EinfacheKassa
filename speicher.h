@@ -54,7 +54,7 @@ private:
 
     QList<Produkt> m_produkte;
 
-    quint64 m_aktuellesProdukt;
+    quint64 m_aktuellesProdukt = 1;
 
 
 

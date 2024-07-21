@@ -17,7 +17,7 @@ NeusProdukt::NeusProdukt(QWidget *parent)
     }
     //setup
     maxProduktSetzen();
-    aktuellesProduktSetzen(speicher.aktuellesProduktVisuell());
+    speicher.setAktuellesProdukt(1);
     produkDatenSetzen(speicher.aktuellesProdukt());
 
     //Buttons Verbinden
@@ -25,6 +25,13 @@ NeusProdukt::NeusProdukt(QWidget *parent)
     connect(ui->pushButton_Vorher, SIGNAL(clicked(bool)), this, SLOT(vorherigesProdukt()));
     connect(ui->pushButton_Speichern, SIGNAL(clicked(bool)), this, SLOT(speichern()));
     connect(ui->pushButton_GeheZuArtNr, SIGNAL(clicked(bool)), this, SLOT(gehZuArtNrAbfrage()));
+    connect(ui->pushButton_ErstesProdukt, SIGNAL(clicked(bool)), this, SLOT(springenZuErsten()));
+    connect(ui->pushButton_LetztesProdukt, SIGNAL(clicked(bool)), this, SLOT(springenZuLetzten()));
+    connect(ui->pushButton_AllesLoeschen, SIGNAL(clicked(bool)), this, SLOT(loescheLineEditsNonAuto()));
+    connect(ui->pushButton_NeusProdukt, SIGNAL(clicked(bool)), this, SLOT(erstelleNeuesProdukt()));
+
+    //LineEdits Verbinden
+    connect(ui->lineEdit_aktuellesProdukt, SIGNAL(returnPressed()) , this, SLOT(springenWenObenEingegeben()));
 
 
 
@@ -39,8 +46,6 @@ NeusProdukt::~NeusProdukt()
     delete ui;
 }
 
-
-
 // Funktionen:
 void NeusProdukt::maxProduktSetzen()
 {
@@ -49,6 +54,7 @@ void NeusProdukt::maxProduktSetzen()
 }
 
 bool NeusProdukt::aktuelleProduktPruefen(quint64 aktuellesProdukt)
+//Die Funktion checkt ob das aktuelle Produkt in der Liste vorhanden ist oder zu hoch
 {
     quint64 maxProdukte = speicher.anzahlProdukte();
 
@@ -152,12 +158,11 @@ void NeusProdukt::naechstesProdukt()
         return;
     }
 
-    quint64 tempVar = speicher.aktuellesProdukt() + 1;
+    quint64 tempVar = speicher.aktuellesProdukt();
 
     if(aktuelleProduktPruefen(tempVar))
     {
-        speicher.setAktuellesProdukt(tempVar);
-        aktuellesProduktSetzen(speicher.aktuellesProduktVisuell());
+        speicher.setAktuellesProdukt(tempVar + 1);
         produkDatenSetzen(speicher.aktuellesProdukt());
     }
     else
@@ -186,12 +191,11 @@ void NeusProdukt::vorherigesProdukt()
         return;
     }
 
-    quint64 tempVar = speicher.aktuellesProdukt();
+    quint64 tempVar = speicher.aktuellesProdukt() -1;
 
     if(aktuelleProduktPruefen(tempVar))
     {
-        speicher.setAktuellesProdukt(--tempVar);
-        aktuellesProduktSetzen(speicher.aktuellesProduktVisuell());
+        speicher.setAktuellesProdukt(tempVar);
         produkDatenSetzen(speicher.aktuellesProdukt());
     }
     else
@@ -206,15 +210,11 @@ void NeusProdukt::vorherigesProdukt()
     }
 }
 
-void NeusProdukt::aktuellesProduktSetzen(quint64 wert)
-{
-    ui->lineEdit_aktuellesProdukt->setText(QString::number(wert));
-}
-
 void NeusProdukt::produkDatenSetzen(quint64 wert)
 {
     Produkt tempP = speicher.getProdukte()[wert];
 
+    ui->lineEdit_aktuellesProdukt->setText(QString::number(wert));
     ui->lineEdit_ProduktName->setText(tempP.getName());
     ui->lineEdit_ArtNr->setText(QString::number(tempP.getArtnr()));
     ui->lineEdit_PreisInEuro->setText(tempP.getPreisAsString());
@@ -225,7 +225,7 @@ void NeusProdukt::produkDatenSetzen(quint64 wert)
 
 
     ui->plainTextEdit_Info->setPlainText(tempP.getInfo());
-    aktuellesProduktSetzen(wert +1 );
+    //aktuellesProduktSetzen(wert +1 );
 
 }
 
@@ -285,8 +285,6 @@ bool NeusProdukt::abfrageAenderungen(quint8 frage = 0)
     return true;
 }
 
-
-
 void NeusProdukt::closeEvent(QCloseEvent *event)
 {
     if(!abfrageAenderungen(1))
@@ -306,8 +304,16 @@ void NeusProdukt::speichern()
     QString tempString = ui->lineEdit_PreisInEuro->text();
     tempString.replace(",", ".");
 
+    if(!tempString.contains('.'))
+    {
+        tempString.append("00");
+    }
+
     quint64 preisInCent = 0;
     quint64 temp = 0;
+
+    QMessageBox msgBox;
+
     for(quint32 i = 0; i < tempString.length(); i++)
     {
         if(tempString[i] != '.')
@@ -319,18 +325,96 @@ void NeusProdukt::speichern()
     }
 
 
-
     if(preisInCent == 0)
     {
-        QMessageBox msgBox;
         msgBox.setWindowTitle("Fehler bei Preis");
         msgBox.setText("Der Preis ist Fehlerhaft, bitte korrigieren vor dem Speichern.");
         msgBox.addButton(QMessageBox::Ok);
         msgBox.exec();
+        return;
+    }
+
+    if(ui->lineEdit_ProduktName->text().isEmpty())
+    {
+        msgBox.setWindowTitle("Fehler bei Produktname");
+        msgBox.setText("Der Produktname ist leer, bitte korrigieren vor dem Speichern.");
+        msgBox.addButton(QMessageBox::Ok);
+        msgBox.exec();
+        return;
+    }
+
+    if(ui->lineEdit_ArtNr->text().isEmpty() || ui->lineEdit_ArtNr->text().toUInt() == 0)
+    {
+        msgBox.setWindowTitle("Fehler bei ArtNr");
+        msgBox.setText("Das Feld für die ArtNr ist leer, bitte korrigieren vor dem Speichern.");
+        msgBox.addButton(QMessageBox::Ok);
+        msgBox.exec();
+        return;
+    }
+
+    if(ui->plainTextEdit_Info->toPlainText().isEmpty())
+    {
+        msgBox.setWindowTitle("Fehler bei Info");
+        msgBox.setText("Das Info Feld ist leer, bitte korrigieren vor dem Speichern.");
+        msgBox.addButton(QMessageBox::Ok);
+        msgBox.exec();
+        return;
     }
 
 
     QList<Produkt>* produkte = speicher.getProduktePointer();
+
+    if(ui->lineEdit_aktuellesProdukt->text() == "neu")
+    {
+        Produkt temp;
+
+        //checken ob ART NR schon existiert
+        if(speicher.sucheArtNr(ui->lineEdit_ArtNr->text().toUInt()))
+        {
+            quint64 naechsteFreieArtNr = ui->lineEdit_ArtNr->text().toUInt() ;
+            quint64 maxArtNr = -1;
+
+            for(;naechsteFreieArtNr != maxArtNr ; naechsteFreieArtNr++)
+            {
+                if(speicher.sucheArtNr(naechsteFreieArtNr) == 0)
+                {
+                    break;
+                }
+            }
+
+            QString text = "Die ArtNr existiert schon, bitte eine andere eingeben.\n";
+            text += "Die nächste freie ArtNr wäre: ";
+            text += QString::number(naechsteFreieArtNr);
+
+            msgBox.setWindowTitle("ArtNr existiert schon");
+            msgBox.setText(text);
+            msgBox.addButton(QMessageBox::Ok);
+            msgBox.exec();
+            return;
+        }
+
+
+        // Produkte auslesen und in temp speichern
+        temp.setName(ui->lineEdit_ProduktName->text());
+        temp.setArtnr(ui->lineEdit_ArtNr->text().toUInt());
+
+        temp.setPreisInCent(preisInCent);
+        ui->lineEdit_PreisInEuro->setText(temp.getPreisAsString());
+
+        temp.setMwst(ui->comboBox_MwSt->currentData().toUInt());
+        temp.setInfo(ui->plainTextEdit_Info->toPlainText());
+
+        aenderungenNichtGespeichert = 0;
+
+        speicher.addProdukt(temp);
+        speicher.setAktuellesProdukt(speicher.anzahlProdukte());
+
+        maxProduktSetzen();
+
+        springZuProdukt(speicher.aktuellesProdukt());
+        return;
+
+    }
 
     Produkt& v = (*produkte)[speicher.aktuellesProdukt()];
 
@@ -357,11 +441,10 @@ void NeusProdukt::speichern()
             text += "Die nächste freie ArtNr wäre: ";
             text += QString::number(naechsteFreieArtNr);
 
-            QMessageBox Box;
-            Box.setWindowTitle("ArtNr existiert schon");
-            Box.setText(text);
-            Box.addButton(QMessageBox::Ok);
-            Box.exec();
+            msgBox.setWindowTitle("ArtNr existiert schon");
+            msgBox.setText(text);
+            msgBox.addButton(QMessageBox::Ok);
+            msgBox.exec();
             return;
         }
     }
@@ -371,6 +454,7 @@ void NeusProdukt::speichern()
     v.setArtnr(ui->lineEdit_ArtNr->text().toUInt());
 
     v.setPreisInCent(preisInCent);
+    ui->lineEdit_PreisInEuro->setText(v.getPreisAsString());
 
     v.setMwst(ui->comboBox_MwSt->currentData().toUInt());
     v.setInfo(ui->plainTextEdit_Info->toPlainText());
@@ -380,14 +464,12 @@ void NeusProdukt::speichern()
 
 void NeusProdukt::gehZuArtNrAbfrage()
 {
-    quint64 eingegebenArtnr = 0;
-
     if(!sicherheitesFrageUngespeichert(2))
     {
         return;
     }
 
-
+    quint64 eingegebenArtnr = 0;
 
     QDialog dialog;
     dialog.setWindowTitle("ArtNr suchen");
@@ -452,10 +534,81 @@ void NeusProdukt::gehZuArtNrAbfrage()
 
 }
 
-
 void NeusProdukt::springZuProdukt(quint64 indexProduktListe)
 {
     maxProduktSetzen();
-    aktuellesProduktSetzen(indexProduktListe);
     produkDatenSetzen(indexProduktListe);
+}
+
+void NeusProdukt::springenWenObenEingegeben()
+{
+    if(!sicherheitesFrageUngespeichert(2))
+    {
+        return;
+    }
+
+    quint64 aktuellesProduktInit = ui->lineEdit_aktuellesProdukt->text().toUInt();
+    if(aktuellesProduktInit > speicher.anzahlProdukte() || aktuellesProduktInit <= 0)
+    {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Fehler bei Eingabe");
+        msgBox.setText("Eingabe nicht erkannt.");
+        msgBox.addButton(QMessageBox::Ok);
+        msgBox.exec();
+        ui->lineEdit_aktuellesProdukt->setText(QString::number(speicher.aktuellesProdukt()));
+        return;
+    }
+    else
+    {
+        speicher.setAktuellesProdukt(aktuellesProduktInit);
+        produkDatenSetzen(aktuellesProduktInit);
+
+    }
+
+}
+
+void NeusProdukt::springenZuErsten()
+{
+    if(!sicherheitesFrageUngespeichert(2))
+    {
+        return;
+    }
+
+    speicher.setAktuellesProdukt(1);
+    produkDatenSetzen(1);
+}
+
+void NeusProdukt::springenZuLetzten()
+{
+    if(!sicherheitesFrageUngespeichert(2))
+    {
+        return;
+    }
+
+    speicher.setAktuellesProdukt(speicher.anzahlProdukte());
+    produkDatenSetzen(speicher.anzahlProdukte());
+}
+
+void NeusProdukt::loescheLineEditsNonAuto()
+{
+    ui->lineEdit_ArtNr->clear();
+    ui->lineEdit_PreisInEuro->clear();
+    ui->lineEdit_ProduktName->clear();
+    ui->plainTextEdit_Info->clear();
+}
+
+void NeusProdukt::erstelleNeuesProdukt()
+{
+    ui->lineEdit_aktuellesProdukt->setText("neu");
+    loescheLineEditsNonAuto();
+    aenderungenNichtGespeichert = 1;
+    ui->comboBox_MwSt->setCurrentIndex(2);
+
+
+    QString maxProdukteErweitern = ui->lineEdit_maxProdukte->text();
+    maxProdukteErweitern += " (";
+    maxProdukteErweitern += QString::number(speicher.anzahlProdukte() + 1);
+    maxProdukteErweitern += ")";
+
+    ui->lineEdit_maxProdukte->setText(maxProdukteErweitern);
 }

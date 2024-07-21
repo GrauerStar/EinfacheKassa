@@ -14,13 +14,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     //Test funktionen
     Produkt p;
-    p.setArtnr(1);
-    p.setName("DEBUG Produkt");
-    p.setInfo("NICHT LÖSCHEN!");
-    p.setMwst(20);
-    p.setPreisInCent(999);
-
-    speicher.addProdukt(p);
 
     p.setArtnr(1001);
     p.setName("TestProdukt2");
