@@ -11,7 +11,6 @@ MainWindow::MainWindow(QWidget *parent)
 
 
 
-
     //Test funktionen
     Produkt p;
 

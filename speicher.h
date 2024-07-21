@@ -18,6 +18,7 @@ public:
     //Funktionen
     void addProdukt(Produkt &produkt);
     quint64 sucheArtNr(quint64 artnr);
+    quint8 mwstUmwandelnIndexMwst(quint8 wert);     //wandelt den wert der eingegeben wurde in die Index von der Combobox um wenn er vorhanden ist ansonsten wir 0 zurück gegeben
 
 
     //Getter und Setter
@@ -28,16 +29,16 @@ public:
 
     static quint8 getMwstIndex();
     static const quint8* getMwst();
-    quint8 mwstUmwandelnIndexMwst(quint8 wert);     //wandelt den wert der eingegeben wurde in die Index von der Combobox um wenn er vorhanden ist ansonsten wir 0 zurück gegeben
-
-
-
 
 
     quint64 aktuellesProdukt() const;
     quint64 aktuellesProduktVisuell() const;
     void setAktuellesProdukt(quint64 newAktuelleProdukt);
 
+    QString DateiNameProdukte() const;
+
+    QString DataPfad() const;
+    void setDataPfad(const QString &newDataPfad);
 
 private:
     Speicher();
@@ -53,8 +54,10 @@ private:
 
 
     QList<Produkt> m_produkte;
-
     quint64 m_aktuellesProdukt = 1;
+    QString m_DateiNameProdukte = "Produkte.json";
+    QString m_DataPfad;
+
 
 
 

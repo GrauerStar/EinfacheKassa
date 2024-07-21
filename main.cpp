@@ -4,6 +4,7 @@
 
 
 #include <QApplication>
+#include <QDir>
 
 int main(int argc, char *argv[])
 {
@@ -16,6 +17,36 @@ int main(int argc, char *argv[])
         return -1;
     }
 
+    // Pfad zum Verzeichnis des ausführbaren Programms
+    QFileInfo executableFile(argv[0]);
+    QString executablePath = executableFile.absolutePath();
+
+
+    // Pfad zum Ordner "data"
+    QString dataPath = executablePath + "/data";
+    QDir ordner(dataPath);
+
+    // QDir ordner(DataSpeicherPfadString);
+
+     if(!ordner.exists())
+     {
+         if(ordner.mkpath(dataPath))
+         {
+             qDebug() << "Ordner wurde erstellt: ";
+         }
+         else
+         {
+             qDebug() << "Ordner konnte nicht erstellt werden: ";
+             return -1;
+         }
+     }
+
+     dataPath += "/";
+
+     //Data Pafd in Speicher
+     speicher.setDataPfad(dataPath);
+
+    //Das 0er Produkt einfügen
     Produkt p;
     p.setArtnr(0);
     p.setName("DEBUG Produkt");

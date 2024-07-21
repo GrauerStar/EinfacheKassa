@@ -29,6 +29,8 @@ NeusProdukt::NeusProdukt(QWidget *parent)
     connect(ui->pushButton_LetztesProdukt, SIGNAL(clicked(bool)), this, SLOT(springenZuLetzten()));
     connect(ui->pushButton_AllesLoeschen, SIGNAL(clicked(bool)), this, SLOT(loescheLineEditsNonAuto()));
     connect(ui->pushButton_NeusProdukt, SIGNAL(clicked(bool)), this, SLOT(erstelleNeuesProdukt()));
+    connect(ui->pushButton_Fertig, SIGNAL(clicked(bool)), this, SLOT(produkteExportierenToJson()));
+    connect(ui->pushButton_Abbrechen, SIGNAL(clicked(bool)), this, SLOT(abbrechen()));
 
     //LineEdits Verbinden
     connect(ui->lineEdit_aktuellesProdukt, SIGNAL(returnPressed()) , this, SLOT(springenWenObenEingegeben()));
@@ -246,6 +248,9 @@ bool NeusProdukt::abfrageAenderungen(quint8 frage = 0)
             break;
         case 2:
             msgText += "Wollen Sie zu andem Artikel springen?";
+            break;
+        case 3:
+            msgText += "Wollen Sie wirklich Abbrechen?";
             break;
 
         default:
@@ -611,4 +616,93 @@ void NeusProdukt::erstelleNeuesProdukt()
     maxProdukteErweitern += ")";
 
     ui->lineEdit_maxProdukte->setText(maxProdukteErweitern);
+}
+
+void NeusProdukt::produkteExportierenToJson()
+{
+    if(!sicherheitesFrageUngespeichert(2))
+    {
+        return;
+    }
+
+
+    QList<Produkt> produkte = speicher.getProdukte();
+
+    QString dateiname = speicher.DataPfad();
+    dateiname += speicher.DateiNameProdukte();
+
+    QFile pfad(dateiname);
+    if(!pfad.open(QFile::WriteOnly))
+    {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Fehler beim Speichern");
+        msgBox.setText("Die Produkte wurde nicht gespeichert!");
+        msgBox.setIcon(QMessageBox::Critical);
+        msgBox.addButton(QMessageBox::Ok);
+        msgBox.exec();
+        return;
+    }
+
+    QJsonArray jsonArray;
+
+    //Bei 1 Starten da das DEBUG Produkt beim Programm start geschrieben wird
+    for(quint64 i = 1; i < speicher.anzahlProdukte(); i++)
+    {
+        QJsonObject jsonObject;
+        jsonObject["name"] = produkte[i].getName();
+        jsonObject["artNr"] = QString::number(produkte[i].getArtnr());
+        jsonObject["preisInCent"] = QString::number(produkte[i].getPreisInCent());
+
+        //umwandeln in Inedx
+        jsonObject["mwstIndex"] = speicher.mwstUmwandelnIndexMwst(produkte[i].getMwst());
+        jsonObject["info"] = produkte[i].getInfo();
+
+        jsonArray.append(jsonObject);
+    }
+
+    QJsonDocument jsonDocument;
+    jsonDocument.setArray(jsonArray);
+
+    pfad.write(jsonDocument.toJson());
+    pfad.close();
+
+    QMessageBox box;
+    box.setWindowTitle("Info");
+    box.setText("Die Produkte wurde (extern) gespeichert");
+    box.setIcon(QMessageBox::Information);
+    box.addButton("Ok", QMessageBox::AcceptRole);
+    box.exec();
+
+
+}
+
+void NeusProdukt::abbrechen()
+{
+    if(!sicherheitesFrageUngespeichert(3))
+    {
+        return;
+    }
+    else
+    {
+        QMessageBox info;
+        info.setWindowTitle("Info");
+        info.setText("Die Änderungen wurden nur gespeichert so lange das Programm läuft.\nDas heißt beim nächsten Programmstart sind die Änderungen/Erweiterungen nicht mehr vorhanden.");
+        info.addButton(QMessageBox::Yes);
+        info.addButton(QMessageBox::No);
+        info.setIcon(QMessageBox::Information);
+
+        info.button(QMessageBox::Yes)->setText("Verstanden");
+        info.button(QMessageBox::No)->setText("Abbrechen");
+
+        if(info.exec() == QMessageBox::Yes)
+        {
+            close();
+        }
+        else
+        {
+            return;
+        }
+
+
+    }
 }

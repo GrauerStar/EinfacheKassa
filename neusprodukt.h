@@ -8,6 +8,10 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QMessageBox>
+#include <QFileDialog>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
 
 #include "speicher.h"
 
@@ -32,6 +36,7 @@ private:
     bool abfrageAenderungen(quint8 frage);
 
 
+
 private slots:
     void maxProduktSetzen();
     void naechstesProdukt();
@@ -47,6 +52,8 @@ private slots:
     void springenZuLetzten();
     void loescheLineEditsNonAuto();
     void erstelleNeuesProdukt();
+    void produkteExportierenToJson();
+    void abbrechen();
 
 public slots:
     void closeEvent(QCloseEvent *event);

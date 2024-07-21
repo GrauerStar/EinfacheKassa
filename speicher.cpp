@@ -9,6 +9,22 @@ Speicher::Speicher()
 
 }
 
+QString Speicher::DataPfad() const
+{
+    return m_DataPfad;
+}
+
+void Speicher::setDataPfad(const QString &newDataPfad)
+{
+    m_DataPfad = newDataPfad;
+}
+
+
+QString Speicher::DateiNameProdukte() const
+{
+    return m_DateiNameProdukte;
+}
+
 quint64 Speicher::aktuellesProdukt() const
 {
     return m_aktuellesProdukt;
