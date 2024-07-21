@@ -2,3 +2,4 @@
 build/
 # Ignoriere die User Datei
 EinfacheKassa.pro.user
+.gitignore
