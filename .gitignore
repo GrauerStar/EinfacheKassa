@@ -1,5 +1,0 @@
-# Ignoriere den Ordner "build"
-build/
-# Ignoriere die User Datei
-EinfacheKassa.pro.user
-.gitignore
