@@ -14,11 +14,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     //Test funktionen
     Produkt p;
-    p.setArtnr(1000);
-    p.setName("TestProdukt");
-    p.setInfo("Das ist eine Information");
+    p.setArtnr(1);
+    p.setName("DEBUG Produkt");
+    p.setInfo("NICHT LÖSCHEN!");
     p.setMwst(20);
-    p.setPreisInCent(-1);
+    p.setPreisInCent(999);
 
     speicher.addProdukt(p);
 
@@ -35,6 +35,22 @@ MainWindow::MainWindow(QWidget *parent)
     p.setInfo("Das ist schon wieder eine Information");
     p.setMwst(13);
     p.setPreisInCent(1599);
+
+    speicher.addProdukt(p);
+
+    p.setArtnr(1003);
+    p.setName("TestProdukt4");
+    p.setInfo("Das ist schon wieder eine Information.\nOida");
+    p.setMwst(20);
+    p.setPreisInCent(1988);
+
+    speicher.addProdukt(p);
+
+    p.setArtnr(1004);
+    p.setName("TestProdukt5");
+    p.setInfo("Zu fü info...");
+    p.setMwst(10);
+    p.setPreisInCent(1990);
 
     speicher.addProdukt(p);
 

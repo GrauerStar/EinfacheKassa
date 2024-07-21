@@ -51,6 +51,11 @@ QList<Produkt> &Speicher::getProdukte()
     return m_produkte;
 }
 
+QList<Produkt> *Speicher::getProduktePointer()
+{
+    return &m_produkte;
+}
+
 quint64 Speicher::anzahlProdukte()
 {
     return m_produkte.size();
@@ -66,11 +71,28 @@ quint8 Speicher::getMwstIndex()
     return mwstIndex;
 }
 
+
+
+
+//Funktionen:
+
 quint8 Speicher::mwstUmwandelnIndexMwst(quint8 wert)
 {
     for(int i = 0; i < mwstIndex; i++)
     {
         if(wert == mwst[i])
+        {
+            return i;
+        }
+    }
+    return 0;
+}
+
+quint64 Speicher::sucheArtNr(quint64 artnr)
+{
+    for(int i = 0; i < m_produkte.size(); i++)
+    {
+        if(m_produkte[i].getArtnr() == artnr)
         {
             return i;
         }

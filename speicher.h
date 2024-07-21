@@ -17,11 +17,13 @@ public:
 
     //Funktionen
     void addProdukt(Produkt &produkt);
+    quint64 sucheArtNr(quint64 artnr);
 
 
     //Getter und Setter
     static Speicher& instance();
     QList<Produkt>& getProdukte();
+    QList<Produkt>* getProduktePointer();
     quint64 anzahlProdukte();
 
     static quint8 getMwstIndex();

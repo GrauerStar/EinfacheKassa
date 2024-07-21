@@ -2,6 +2,11 @@
 #define NEUSPRODUKT_H
 
 #include <QDialog>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QLineEdit>
+#include <QPushButton>
 #include <QMessageBox>
 
 #include "speicher.h"
@@ -33,6 +38,9 @@ private slots:
     void aktuellesProduktSetzen(quint64 wert);
     bool aktuelleProduktPruefen(quint64 aktuellesProdukt);
     void produkDatenSetzen(quint64 wert);
+    bool sicherheitesFrageUngespeichert();
+    void speichern();
+    void gehZuPodukt();
 
 public slots:
     void closeEvent(QCloseEvent *event);

@@ -64,5 +64,25 @@ void Produkt::setMwst(qint8 newMwst)
 
 QString Produkt::getPreisAsString() const
 {
-    return QString::number(preisInCent / 100) + "," + QString::number(preisInCent % 100);
+    QString returnString;
+    quint8 tempPreis = preisInCent % 100;
+
+    returnString = QString::number(preisInCent / 100);
+    returnString += ",";
+
+    if(tempPreis == 0)
+    {
+        returnString += "00";
+    }
+    else if(tempPreis < 10)
+    {
+        returnString += "0";
+        returnString += QString::number(tempPreis);
+    }
+    else
+    {
+        returnString += QString::number(tempPreis);
+    }
+
+    return returnString;
 }
