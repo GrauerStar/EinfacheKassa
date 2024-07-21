@@ -24,7 +24,7 @@ NeusProdukt::NeusProdukt(QWidget *parent)
     connect(ui->pushButton_Nachstes, SIGNAL(clicked(bool)),this ,SLOT(naechstesProdukt()));
     connect(ui->pushButton_Vorher, SIGNAL(clicked(bool)), this, SLOT(vorherigesProdukt()));
     connect(ui->pushButton_Speichern, SIGNAL(clicked(bool)), this, SLOT(speichern()));
-    connect(ui->pushButton_GeheZuArtNr, SIGNAL(clicked(bool)), this, SLOT(gehZuPodukt()));
+    connect(ui->pushButton_GeheZuArtNr, SIGNAL(clicked(bool)), this, SLOT(gehZuArtNrAbfrage()));
 
 
 
@@ -68,7 +68,7 @@ bool NeusProdukt::aktuelleProduktPruefen(quint64 aktuellesProdukt)
     }
 }
 
-bool NeusProdukt::sicherheitesFrageUngespeichert()
+bool NeusProdukt::sicherheitesFrageUngespeichert(quint8 frage)
 {
     QList<Produkt> produkte = speicher.getProdukte();
 
@@ -134,42 +134,20 @@ bool NeusProdukt::sicherheitesFrageUngespeichert()
 
 
 
-
-
-    if(aenderungenNichtGespeichert > 0)
+    if(abfrageAenderungen(frage))
     {
-        QMessageBox box;
-        box.setWindowTitle("Achtung nicht gespeichert");
-        box.setText("Änderungen wurden nicht gespeichert. Wollen Sie wirklich fortfahren?");
-        box.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-        box.setIcon(QMessageBox::Question);
-
-        // Ändern der Texte der Buttons
-        box.button(QMessageBox::Yes)->setText("Ja");
-        box.button(QMessageBox::No)->setText("Nein");
-
-        // Anzeigen der Nachricht und Rückgabe des geklickten Buttons
-        QMessageBox::StandardButton weiterButton = static_cast<QMessageBox::StandardButton>(box.exec());
-
-        // Entscheidung basierend auf der Benutzerwahl
-        if(weiterButton == QMessageBox::No)
-        {
-            return false;
-        }
-        else
-        {
-            aenderungenNichtGespeichert = 0;
-            return true;
-        }
+        return true;
     }
-
-    return true;
+    else
+    {
+        return false;
+    }
 
 }
 
 void NeusProdukt::naechstesProdukt()
 {
-    if(!sicherheitesFrageUngespeichert())
+    if(!sicherheitesFrageUngespeichert(0))
     {
         return;
     }
@@ -203,7 +181,7 @@ void NeusProdukt::naechstesProdukt()
 
 void NeusProdukt::vorherigesProdukt()
 {
-    if(!sicherheitesFrageUngespeichert())
+    if(!sicherheitesFrageUngespeichert(0))
     {
         return;
     }
@@ -251,14 +229,36 @@ void NeusProdukt::produkDatenSetzen(quint64 wert)
 
 }
 
-void NeusProdukt::closeEvent(QCloseEvent *event)
+bool NeusProdukt::abfrageAenderungen(quint8 frage = 0)
 {
+
     if(aenderungenNichtGespeichert > 0)
     {
+        QString msgText = "Änderungen wurden noch nicht gespeichert. ";
+
+        switch (frage)
+        {
+        case 0:
+            msgText += "Wollen Sie wirklich fortfahren?";
+            break;
+        case 1:
+            msgText += "Wollen Sie wirklich schließen?";
+            break;
+        case 2:
+            msgText += "Wollen Sie zu andem Artikel springen?";
+            break;
+
+        default:
+            msgText += "FEHLER BEI SWITCH CASE.";
+            break;
+        }
+
+
+
         // Erstellung der QMessageBox
         QMessageBox msgBox;
         msgBox.setWindowTitle("Änderungen nicht gespeichert");
-        msgBox.setText("Änderungen wurden nicht gespeichert. Wollen Sie wirklich schließen?");
+        msgBox.setText(msgText);
         msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
         msgBox.setDefaultButton(QMessageBox::No);
 
@@ -267,22 +267,37 @@ void NeusProdukt::closeEvent(QCloseEvent *event)
         msgBox.button(QMessageBox::No)->setText("Nein");
 
         // Anzeigen der Nachricht und Rückgabe des geklickten Buttons
-        QMessageBox::StandardButton closeButton = static_cast<QMessageBox::StandardButton>(msgBox.exec());
+        QMessageBox::StandardButton frage = static_cast<QMessageBox::StandardButton>(msgBox.exec());
 
         // Entscheidung basierend auf der Benutzerwahl
-        if(closeButton == QMessageBox::No)
+        if(frage == QMessageBox::No)
         {
-            event->ignore();
+            return false;
         }
         else
         {
-            event->accept();
+            aenderungenNichtGespeichert = 0;
+            return true;
         }
+    }
+
+    // sollte kein Änderungen erfolgt sein
+    return true;
+}
+
+
+
+void NeusProdukt::closeEvent(QCloseEvent *event)
+{
+    if(!abfrageAenderungen(1))
+    {
+        event->ignore();
     }
     else
     {
         event->accept();
     }
+
 }
 
 void NeusProdukt::speichern()
@@ -363,9 +378,16 @@ void NeusProdukt::speichern()
     aenderungenNichtGespeichert = 0;
 }
 
-void NeusProdukt::gehZuPodukt()
+void NeusProdukt::gehZuArtNrAbfrage()
 {
     quint64 eingegebenArtnr = 0;
+
+    if(!sicherheitesFrageUngespeichert(2))
+    {
+        return;
+    }
+
+
 
     QDialog dialog;
     dialog.setWindowTitle("ArtNr suchen");
@@ -394,11 +416,46 @@ void NeusProdukt::gehZuPodukt()
     // Die Funktion muss noch angepasst werden, die ARTN muss geprüft werden und anschließend muss er auf das Aktuelle Produkt lt Index gesetzt werden
 
     if (dialog.exec() == QDialog::Accepted) {
+
         QString artNr = artNrLineEdit->text();
-        QMessageBox::information(nullptr, "ArtNr eingegeben", "Die eingegebene ArtNr ist: " + artNr);
+        eingegebenArtnr = artNr.toUInt();
+
+        if(eingegebenArtnr == 0)
+        {
+            QMessageBox errorBox;
+            errorBox.setWindowTitle("Fehler bei ArtNr");
+            errorBox.setText("Eingabe nicht erkannt");
+            errorBox.addButton(QMessageBox::Ok);
+            errorBox.exec();
+            return;
+        }
+
+        quint64 index = speicher.sucheArtNr(eingegebenArtnr);
+
+        if(index == 0)
+        {
+            QMessageBox errorBox2;
+            errorBox2.setWindowTitle("ArtNr nicht gefunden");
+            errorBox2.setText("Die eingegebene ArtNr nicht gefunden.");
+            errorBox2.addButton(QMessageBox::Ok);
+            errorBox2.exec();
+            return;
+        }
+
+        speicher.setAktuellesProdukt(index);
+        springZuProdukt(index);
+
     } else {
         QMessageBox::information(nullptr, "Abgebrochen", "Die Eingabe wurde abgebrochen.");
     }
 
 
+}
+
+
+void NeusProdukt::springZuProdukt(quint64 indexProduktListe)
+{
+    maxProduktSetzen();
+    aktuellesProduktSetzen(indexProduktListe);
+    produkDatenSetzen(indexProduktListe);
 }

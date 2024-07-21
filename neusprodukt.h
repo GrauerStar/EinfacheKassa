@@ -29,6 +29,7 @@ private:
 
     //Speichert wenn änderungen gemacht werden die nicht gespeichert werden
     quint8 aenderungenNichtGespeichert;
+    bool abfrageAenderungen(quint8 frage);
 
 
 private slots:
@@ -38,9 +39,10 @@ private slots:
     void aktuellesProduktSetzen(quint64 wert);
     bool aktuelleProduktPruefen(quint64 aktuellesProdukt);
     void produkDatenSetzen(quint64 wert);
-    bool sicherheitesFrageUngespeichert();
+    bool sicherheitesFrageUngespeichert(quint8 frage);
     void speichern();
-    void gehZuPodukt();
+    void gehZuArtNrAbfrage();
+    void springZuProdukt(quint64 indexProduktListe);
 
 public slots:
     void closeEvent(QCloseEvent *event);
