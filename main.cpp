@@ -27,12 +27,11 @@ int main(int argc, char *argv[])
     QDir ordner(dataPath);
 
     // QDir ordner(DataSpeicherPfadString);
-
      if(!ordner.exists())
      {
          if(ordner.mkpath(dataPath))
          {
-             qDebug() << "Ordner wurde erstellt: ";
+             qDebug() << "Data Ordner wurde erstellt: ";
          }
          else
          {
@@ -40,11 +39,16 @@ int main(int argc, char *argv[])
              return -1;
          }
      }
+     else
+     {
+         //TODO Load Produkte
+     }
 
      dataPath += "/";
 
      //Data Pafd in Speicher
      speicher.setDataPfad(dataPath);
+
 
     //Das 0er Produkt einfügen
     Produkt p;

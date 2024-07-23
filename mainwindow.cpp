@@ -9,42 +9,43 @@ MainWindow::MainWindow(QWidget *parent)
     //Knöpfe verbinden
     connect(ui->actionProdukt_hinzuf_gen, SIGNAL(triggered()), this, SLOT(fensterNeusProdukt() ));
 
-
+    //Produkte laden
+    speicher.importJsonProdukte();
 
     //Test funktionen
-    Produkt p;
+    // Produkt p;
 
-    p.setArtnr(1001);
-    p.setName("TestProdukt2");
-    p.setInfo("Das ist noch eine Information");
-    p.setMwst(10);
-    p.setPreisInCent(1000);
+    // p.setArtnr(1001);
+    // p.setName("TestProdukt2");
+    // p.setInfo("Das ist noch eine Information");
+    // p.setMwst(10);
+    // p.setPreisInCent(1000);
 
-    speicher.addProdukt(p);
+    // speicher.addProdukt(p);
 
-    p.setArtnr(1002);
-    p.setName("TestProdukt3");
-    p.setInfo("Das ist schon wieder eine Information");
-    p.setMwst(13);
-    p.setPreisInCent(1599);
+    // p.setArtnr(1002);
+    // p.setName("TestProdukt3");
+    // p.setInfo("Das ist schon wieder eine Information");
+    // p.setMwst(13);
+    // p.setPreisInCent(1599);
 
-    speicher.addProdukt(p);
+    // speicher.addProdukt(p);
 
-    p.setArtnr(1003);
-    p.setName("TestProdukt4");
-    p.setInfo("Das ist schon wieder eine Information.\nOida");
-    p.setMwst(20);
-    p.setPreisInCent(1988);
+    // p.setArtnr(1003);
+    // p.setName("TestProdukt4");
+    // p.setInfo("Das ist schon wieder eine Information.\nOida");
+    // p.setMwst(20);
+    // p.setPreisInCent(1988);
 
-    speicher.addProdukt(p);
+    // speicher.addProdukt(p);
 
-    p.setArtnr(1004);
-    p.setName("TestProdukt5");
-    p.setInfo("Zu fü info...");
-    p.setMwst(10);
-    p.setPreisInCent(1990);
+    // p.setArtnr(1004);
+    // p.setName("TestProdukt5");
+    // p.setInfo("Zu fü info...");
+    // p.setMwst(10);
+    // p.setPreisInCent(1990);
 
-    speicher.addProdukt(p);
+    // speicher.addProdukt(p);
 
 
 

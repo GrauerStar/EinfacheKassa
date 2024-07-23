@@ -116,3 +116,85 @@ quint64 Speicher::sucheArtNr(quint64 artnr)
     }
     return 0;
 }
+
+void Speicher::importJsonProdukte()
+{
+    QString datenPfad = m_DataPfad + m_DateiNameProdukte;
+    QFile datei(datenPfad);
+    QString fehlermeldungString;
+    QJsonDocument jsonDoc;
+    QJsonObject jsonObj;
+    QJsonArray jsonArray;
+    QJsonValue jsonValue;
+    QMessageBox box;
+
+    Produkt p;
+
+    box.setWindowTitle("Fehler");
+    box.setIcon(QMessageBox::Critical);
+    box.addButton(QMessageBox::Ok);
+
+
+
+    if(!datei.open(QFile::ReadOnly))
+    {
+        fehlermeldungString = "Die Produkte konnten nicht geladen werden!\n" + datenPfad;
+        box.setText(fehlermeldungString);
+        box.exec();
+        return;
+    }
+    else
+    {
+        jsonDoc = QJsonDocument::fromJson(datei.readAll());
+        datei.close();
+        if(!jsonDoc.isArray())
+        {
+            box.setText("Die Produkte konnten nicht geladen werden! Die Datei ist keine Json Array Datei!");
+            box.exec();
+            return;
+        }
+
+        jsonArray = jsonDoc.array();
+
+        for(int i = 0; i < jsonArray.size(); ++i)
+        {
+            const QJsonValue & value = jsonArray[i];
+            if(!value.isObject())
+            {
+                fehlermeldungString ="Ein Element im Array hat einen Fehler!\nBei dem Produkt Nummer: " + QString::number(i);
+                box.setText(fehlermeldungString);
+                box.exec();
+                continue;
+            }
+
+            jsonObj = value.toObject();
+
+
+
+            // quint32 pr_artnr = static_cast<quint32>(jsonObj["artnr"].toInt());
+            // quint64 pr_preisInCent = static_cast<quint64>(jsonObj["preisInCent"].toDouble());
+            // QString pr_name = jsonObj["name"].toString();
+            // QString pr_info = jsonObj["info"].toString();
+            // qint8 pr_mwst = mwst[static_cast<qint8>(jsonObj["mwst"].toInt())];
+
+            quint32 pr_artnr = jsonObj["artNr"].toInt();
+            quint64 pr_preisInCent = jsonObj["preisInCent"].toInt();
+            QString pr_name = jsonObj["name"].toString();
+            QString pr_info = jsonObj["info"].toString();
+            qint8 pr_mwst = mwst[static_cast<qint8>(jsonObj["mwstIndex"].toInt())];
+
+
+            p.setArtnr(pr_artnr);
+            p.setPreisInCent(pr_preisInCent);
+            p.setName(pr_name);
+            p.setInfo(pr_info);
+            p.setMwst(pr_mwst);
+
+            m_produkte.append(p);
+
+        }
+
+    }
+
+
+}

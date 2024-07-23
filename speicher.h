@@ -3,6 +3,13 @@
 
 #include <QList>
 
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonArray>
+#include <QFile>
+
+#include <QMessageBox>
+
 
 #include "produkt.h"
 
@@ -19,6 +26,8 @@ public:
     void addProdukt(Produkt &produkt);
     quint64 sucheArtNr(quint64 artnr);
     quint8 mwstUmwandelnIndexMwst(quint8 wert);     //wandelt den wert der eingegeben wurde in die Index von der Combobox um wenn er vorhanden ist ansonsten wir 0 zurück gegeben
+
+    void importJsonProdukte();
 
 
     //Getter und Setter
