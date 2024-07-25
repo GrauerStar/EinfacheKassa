@@ -39,8 +39,6 @@ NeusProdukt::NeusProdukt(QWidget *parent)
 
 
 
-
-
 }
 
 NeusProdukt::~NeusProdukt()
@@ -483,19 +481,6 @@ void NeusProdukt::speichern()
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 void NeusProdukt::gehZuArtNrAbfrage()
 {
     if(!sicherheitesFrageUngespeichert(2))
@@ -519,7 +504,7 @@ void NeusProdukt::gehZuArtNrAbfrage()
     QHBoxLayout *buttonLayout = new QHBoxLayout();
 
     QPushButton *okButton = new QPushButton("Ok", &dialog);
-    QPushButton *cancelButton = new QPushButton("Cancel", &dialog);
+    QPushButton *cancelButton = new QPushButton("Abbruch", &dialog);
 
     buttonLayout->addWidget(okButton);
     buttonLayout->addWidget(cancelButton);
@@ -678,14 +663,6 @@ void NeusProdukt::produkteExportierenToJson()
     for(quint64 i = 1; i <= speicher.anzahlProdukte(); i++)
     {
         QJsonObject jsonObject;
-        // jsonObject["name"] = produkte[i].getName();
-        // jsonObject["artNr"] = QString::number(produkte[i].getArtnr());
-        // jsonObject["preisInCent"] = QString::number(produkte[i].getPreisInCent());
-
-        // //umwandeln in Inedx
-        // jsonObject["mwstIndex"] = speicher.mwstUmwandelnIndexMwst(produkte[i].getMwst());
-        // jsonObject["info"] = produkte[i].getInfo();
-
         jsonObject["artNr"] = static_cast<int>(produkte[i].getArtnr());
         jsonObject["preisInCent"] = static_cast<qint64>(produkte[i].getPreisInCent());
         jsonObject["name"] = produkte[i].getName();

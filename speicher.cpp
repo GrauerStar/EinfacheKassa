@@ -141,6 +141,16 @@ void Speicher::importJsonProdukte()
         fehlermeldungString = "Die Produkte konnten nicht geladen werden!\n" + datenPfad;
         box.setText(fehlermeldungString);
         box.exec();
+
+        //leeres Produkt einfügen
+        p.setArtnr(0);
+        p.setPreisInCent(0);
+        p.setName("KEIN PRODUKT GELADEN");
+        p.setInfo("PRODUKTE DÜRFEN NICHT LEER SEIN");
+        p.setMwst(13);
+
+        m_produkte.append(p);
+
         return;
     }
     else
@@ -196,5 +206,85 @@ void Speicher::importJsonProdukte()
 
     }
 
+
+}
+
+
+QString Speicher::preisUmwandelnAlsString(quint64 preisInCent)
+{
+    quint64 preisDurch100 = preisInCent / 100;
+    quint64 centBetrag = preisInCent - (preisDurch100 * 100);
+
+    QString rueckgabe = "€ ";
+    rueckgabe += QString::number(preisDurch100);
+    rueckgabe += ",";
+    rueckgabe += QString::number(centBetrag);
+
+    return rueckgabe;
+}
+
+quint64 Speicher::preisUmwandelnAlsCentrbetrag(QString preisAlsString)
+{
+    // löscht ein Eurozeichen und ein leerzeichen falls es vorhanden ist
+    if(preisAlsString.startsWith("€ "))
+    {
+        preisAlsString = preisAlsString.mid(2);
+    }
+
+    // ersetzt das Komma mit einem Punkt
+    preisAlsString.replace(",", ".");
+
+    // wenn kein Punkt da ist gleich abschließen und *100 zurückgeben
+    if(!preisAlsString.contains('.'))
+    {
+        return preisAlsString.toUInt() * 100;
+    }
+    else
+    {
+        //wert ohne komma
+        quint64 rueckgabe = 0; //preisAlsString.toUInt();
+
+        for(int i = 0; preisAlsString[i] != '.'; i++)
+        {
+            rueckgabe *= 10;
+            rueckgabe += preisAlsString.at(i).digitValue();
+        }
+
+
+        // Sicherstellen, dass der String mindestens zwei Dezimalstellen hat
+        int positionPunkt = preisAlsString.indexOf('.');
+        int anzahlDezimalstellen = preisAlsString.length() - positionPunkt - 1;
+
+
+        if(anzahlDezimalstellen == 1)
+        {
+            rueckgabe = rueckgabe * 10;
+            rueckgabe += preisAlsString.at(positionPunkt +1).digitValue();
+            rueckgabe = rueckgabe * 10;
+
+        }
+        else if(anzahlDezimalstellen == 2)
+        {
+            rueckgabe = rueckgabe * 10;
+            rueckgabe += preisAlsString.at(positionPunkt +1).digitValue();
+            rueckgabe = rueckgabe * 10;
+            rueckgabe += preisAlsString.at(positionPunkt +2).digitValue();
+        }
+        else if(anzahlDezimalstellen > 2)
+        {
+            rueckgabe = rueckgabe * 10;
+            rueckgabe += preisAlsString.at(positionPunkt +1).digitValue();
+            rueckgabe = rueckgabe * 10;
+            rueckgabe += (preisAlsString.at(positionPunkt +2).digitValue() );
+
+            if(preisAlsString.at(positionPunkt + 3).digitValue() > 4)
+            {
+                rueckgabe++;
+            }
+
+        }
+
+        return rueckgabe;
+    }
 
 }

@@ -30,6 +30,10 @@ public:
     void importJsonProdukte();
 
 
+    QString preisUmwandelnAlsString(quint64 preisInCent);
+    quint64 preisUmwandelnAlsCentrbetrag(QString preisAlsString);
+
+
     //Getter und Setter
     static Speicher& instance();
     QList<Produkt>& getProdukte();

@@ -61,6 +61,7 @@ int main(int argc, char *argv[])
     speicher.addProdukt(p);
 
 
+
     QApplication a(argc, argv);
     MainWindow w;
     w.show();

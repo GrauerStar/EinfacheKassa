@@ -21,6 +21,9 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+    //Funktionen:
+    void hinzufuegenLeereZeile();
+
 private:
     Ui::MainWindow *ui;
     Speicher& speicher = Speicher::instance();
@@ -28,6 +31,7 @@ private:
 
 private slots:
     void fensterNeusProdukt();
+    void beiCellChanged(int reihe, int spalte);
 
 };
 #endif // MAINWINDOW_H
