@@ -218,6 +218,11 @@ QString Speicher::preisUmwandelnAlsString(quint64 preisInCent)
     QString rueckgabe = "€ ";
     rueckgabe += QString::number(preisDurch100);
     rueckgabe += ",";
+
+    if(centBetrag < 10)
+    {
+        rueckgabe += "0";
+    }
     rueckgabe += QString::number(centBetrag);
 
     return rueckgabe;

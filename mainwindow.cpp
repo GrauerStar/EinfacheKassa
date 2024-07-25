@@ -34,13 +34,11 @@ MainWindow::MainWindow(QWidget *parent)
     QFontMetrics metrics_artnr(ui->tableWidget_ProdukteZumVerkauf->font());
     // Setze die Breite für 5 Artnr
     int breiteArtnr = metrics_artnr.horizontalAdvance("XXXXX");
-    qDebug() << "Breite Artnr: " << breiteArtnr;
     ui->tableWidget_ProdukteZumVerkauf->setColumnWidth(0, breiteArtnr);
 
     QFontMetrics metrics_preis(ui->tableWidget_ProdukteZumVerkauf->font());
     // Setze die Breite für 5 Artnr
     int breitePreisGes = metrics_preis.horizontalAdvance("XX.XXX,XX");
-    qDebug() << "Breite PreisGes: " << breitePreisGes;
     ui->tableWidget_ProdukteZumVerkauf->setColumnWidth(4, breitePreisGes);
     ui->tableWidget_ProdukteZumVerkauf->setColumnWidth(3, breitePreisGes);
 
@@ -49,13 +47,6 @@ MainWindow::MainWindow(QWidget *parent)
 
     //Tabelle verbinden
     connect(ui->tableWidget_ProdukteZumVerkauf, SIGNAL(cellChanged(int,int)), this, SLOT(beiCellChanged(int,int)));
-
-
-
-
-
-
-
 
 
 
@@ -78,17 +69,6 @@ void MainWindow::fensterNeusProdukt()
 
 void MainWindow::hinzufuegenLeereZeile()
 {
-    // int reihe = ui->tableWidget_ProdukteZumVerkauf->rowCount();
-    // ui->tableWidget_ProdukteZumVerkauf->insertRow(reihe);
-
-
-    // QTableWidgetItem *item = new QTableWidgetItem;
-
-    // item->setFlags(item->flags() & ~Qt::ItemIsEditable)
-
-    // ui->tableWidget_ProdukteZumVerkauf->setItem(reihe, 0, item);
-    // ui->tableWidget_ProdukteZumVerkauf->editItem(item);
-
     int reihe = ui->tableWidget_ProdukteZumVerkauf->rowCount();
     ui->tableWidget_ProdukteZumVerkauf->insertRow(reihe);
 
@@ -112,17 +92,28 @@ void MainWindow::beiCellChanged(int reihe, int spalte)
 
     QTableWidgetItem tempItem;
 
-    if (spalte == 0) // Überprüfe, ob die ARTNr-Spalte geändert wurde
+    if(spalte == 0) // Überprüfe, ob die ARTNr-Spalte geändert wurde
     {
         QTableWidgetItem *item = ui->tableWidget_ProdukteZumVerkauf->item(reihe, spalte);
         if (!item) {
-            qDebug() << "Error: No item in cell (" << reihe << "," << spalte << ")";
             return;
         }
 
         QString artNr = item->text();
-        if (artNr.isEmpty() || speicher.sucheArtNr(artNr.toUInt()) == 0) {
-            qDebug() << "Warning: ARTNr is empty in cell (" << reihe << "," << spalte << ")";
+        if (artNr.isEmpty()) {
+            return;
+        }
+
+        if(speicher.sucheArtNr(artNr.toUInt()) == 0)
+        {
+            QMessageBox msgBox;
+            msgBox.setText("Produkt nicht gefunden!");
+            msgBox.setWindowTitle("ArtNr unbekannt");
+            msgBox.setIcon(QMessageBox::Information);
+            msgBox.addButton(QMessageBox::Ok);
+            msgBox.exec();
+            ui->tableWidget_ProdukteZumVerkauf->setCurrentItem(item);
+            //ui->tableWidget_ProdukteZumVerkauf->editItem(ui->tableWidget_ProdukteZumVerkauf->item(reihe, 0));
             return;
         }
 
@@ -135,10 +126,6 @@ void MainWindow::beiCellChanged(int reihe, int spalte)
 
         ui->tableWidget_ProdukteZumVerkauf->setItem(reihe, 2, new QTableWidgetItem(produkt.getName()));
         ui->tableWidget_ProdukteZumVerkauf->setItem(reihe, 3, new QTableWidgetItem(produkt.getPreisAsString()));
-
-        // Füge eine neue leere Zeile hinzu
-
-        qDebug() << "Gezählte Reihen: " << ui->tableWidget_ProdukteZumVerkauf->rowCount() << " ReihenÜbergeben: " << reihe;
 
 
         //Checkt ob die Reihe Neu ist oder bestehend
@@ -166,13 +153,18 @@ void MainWindow::beiCellChanged(int reihe, int spalte)
 
             QObject::connect(okButton, &QPushButton::clicked, &dialog, &QDialog::accept);
             QObject::connect(cancelButton, &QPushButton::clicked, &dialog, &QDialog::reject);
+            int auswahl = 0;
 
             // Die Funktion muss noch angepasst werden, die ARTN muss geprüft werden und anschließend muss er auf das Aktuelle Produkt lt Index gesetzt werden
+            while(mengeLineEdit->text().isEmpty() || mengeLineEdit->text().toUInt() <= 0)
+            {
+                mengeLineEdit->clear();
+                auswahl = dialog.exec();
+            }
 
-            if (dialog.exec() == QDialog::Accepted) {
+            if(auswahl == QDialog::Accepted) {
                 //Menge als String einfügen
                 ui->tableWidget_ProdukteZumVerkauf->setItem(reihe, 1, new QTableWidgetItem(mengeLineEdit->text()));
-
 
             }
             else
@@ -180,25 +172,40 @@ void MainWindow::beiCellChanged(int reihe, int spalte)
                 return;
             }
 
-
             hinzufuegenLeereZeile();
+            //Setzt den Cursor auf die neue Reihe um die ArtNr gleich direkt einzugeben
+            ui->tableWidget_ProdukteZumVerkauf->setCurrentItem(ui->tableWidget_ProdukteZumVerkauf->item(reihe +1 , 0));
+
         }
 
         //Gesamte Preis setzen
         QTableWidgetItem *itemMenge = ui->tableWidget_ProdukteZumVerkauf->item(reihe,1);
         ui->tableWidget_ProdukteZumVerkauf->setItem(reihe, 4, new QTableWidgetItem(speicher.preisUmwandelnAlsString(produkt.getPreisInCent() * itemMenge->text().toUInt()   )));
 
-        qDebug() << "produkt.getPreisInCent()"  << produkt.getPreisInCent() << "itemMenge->text().toUInt() " << itemMenge->text().toUInt() << speicher.preisUmwandelnAlsString(produkt.getPreisInCent() * itemMenge->text().toUInt());
-
-
-
-
-
     }
 
-
-
-
-
-
+    gesammtePreisInEuroBerechnenUndSetzen();
+    return;
 }
+
+void MainWindow::gesammtePreisInEuroBerechnenUndSetzen()
+{
+    quint64 gesamtePreisInCent = 0;
+
+    for (int i = 0; i < ui->tableWidget_ProdukteZumVerkauf->rowCount(); ++i) {
+        QTableWidgetItem *item = ui->tableWidget_ProdukteZumVerkauf->item(i, 4);
+        if(item)
+        {
+            gesamtePreisInCent += speicher.preisUmwandelnAlsCentrbetrag(item->text());
+        }
+    }
+
+    QFont schriftart;
+    schriftart.setBold(true);
+    schriftart.setPointSize(16);
+
+    ui->label_PreisGesammtRechtsUnten->setText(speicher.preisUmwandelnAlsString(gesamtePreisInCent));
+    ui->label_PreisGesammtRechtsUnten->setFont(schriftart);
+    return;
+}
+

@@ -22,7 +22,7 @@ public:
     ~MainWindow();
 
     //Funktionen:
-    void hinzufuegenLeereZeile();
+
 
 private:
     Ui::MainWindow *ui;
@@ -32,6 +32,8 @@ private:
 private slots:
     void fensterNeusProdukt();
     void beiCellChanged(int reihe, int spalte);
+    void hinzufuegenLeereZeile();
+    void gesammtePreisInEuroBerechnenUndSetzen();
 
 };
 #endif // MAINWINDOW_H
