@@ -9,10 +9,15 @@ MainWindow::MainWindow(QWidget *parent)
     speicher.importJsonProdukte();
 
     ui->setupUi(this);
+
+
     //Knöpfe verbinden
     connect(ui->actionProdukt_hinzuf_gen, SIGNAL(triggered()), this, SLOT(fensterNeusProdukt() ));
 
-
+    //MWST deaktivieren
+    ui->horizontalWidgetMwSt10->setVisible(false);
+    ui->horizontalWidgetMwSt13->setVisible(false);
+    ui->horizontalWidgetMwSt20->setVisible(false);
 
 
     //Tabellen setup
@@ -113,7 +118,6 @@ void MainWindow::beiCellChanged(int reihe, int spalte)
             msgBox.addButton(QMessageBox::Ok);
             msgBox.exec();
             ui->tableWidget_ProdukteZumVerkauf->setCurrentItem(item);
-            //ui->tableWidget_ProdukteZumVerkauf->editItem(ui->tableWidget_ProdukteZumVerkauf->item(reihe, 0));
             return;
         }
 
@@ -206,6 +210,96 @@ void MainWindow::gesammtePreisInEuroBerechnenUndSetzen()
 
     ui->label_PreisGesammtRechtsUnten->setText(speicher.preisUmwandelnAlsString(gesamtePreisInCent));
     ui->label_PreisGesammtRechtsUnten->setFont(schriftart);
+
+    mwStAktuallisieren();
+
     return;
 }
 
+void MainWindow::mwStAktuallisieren()
+{
+    quint64 mwst10 = 0;
+    quint64 mwst13 = 0;
+    quint64 mwst20 = 0;
+
+    QList<Produkt> pL = speicher.getProdukte();
+    Produkt p;
+
+
+    for(int i = 0; i < ui->tableWidget_ProdukteZumVerkauf->rowCount(); ++i)
+    {
+        QTableWidgetItem *item = ui->tableWidget_ProdukteZumVerkauf->item(i, 0);
+        if(item)
+        {
+            p = pL[speicher.sucheArtNr(item->text().toUInt())];
+
+            if(p.getMwst() == 10)
+            {
+                item = ui->tableWidget_ProdukteZumVerkauf->item(i, 1);
+                mwst10 += (item->text().toUInt() * p.getPreisInCent()) * 0.1 ;  //(menge mal preis) *0,1 -> in centInStringFunktion
+
+                if((item->text().toUInt() * p.getPreisInCent()) % 10 > 49)
+                {
+                    mwst10++;
+                }
+
+            }
+            else if(p.getMwst() == 13)
+            {
+                item = ui->tableWidget_ProdukteZumVerkauf->item(i, 1);
+                mwst13 += (item->text().toUInt() * p.getPreisInCent()) * 0.13 ;  //(menge mal preis) *0,13 -> in centInStringFunktion
+
+                if((item->text().toUInt() * p.getPreisInCent()) % 8 > 49)
+                {
+                    mwst13++;
+                }
+
+            }
+            else if(p.getMwst() == 20)
+            {
+                item = ui->tableWidget_ProdukteZumVerkauf->item(i, 1);
+                mwst20 += (item->text().toUInt() * p.getPreisInCent()) * 0.20 ;  //(menge mal preis) *0,13 -> in centInStringFunktion
+
+                if((item->text().toUInt() * p.getPreisInCent()) % 5 > 49)
+                {
+                    mwst20++;
+                }
+
+            }
+        }
+
+    }
+
+    if(mwst10 > 0)
+    {
+        ui->horizontalWidgetMwSt10->setVisible(true);
+        ui->label_PreisMwSt10->setText(speicher.preisUmwandelnAlsString(mwst10));
+    }
+    else
+    {
+        ui->horizontalWidgetMwSt10->setVisible(false);
+    }
+
+    if(mwst13 > 0)
+    {
+        ui->horizontalWidgetMwSt13->setVisible(true);
+        ui->label_PreisMwSt13->setText(speicher.preisUmwandelnAlsString(mwst13));
+    }
+    else
+    {
+        ui->horizontalWidgetMwSt13->setVisible(false);
+    }
+
+    if(mwst20 > 0)
+    {
+        ui->horizontalWidgetMwSt20->setVisible(true);
+        ui->label_PreisMwSt20->setText(speicher.preisUmwandelnAlsString(mwst20));
+    }
+    else
+    {
+        ui->horizontalWidgetMwSt20->setVisible(false);
+    }
+
+    return;
+
+}

@@ -29,11 +29,16 @@ private:
     Speicher& speicher = Speicher::instance();
 
 
+
+
+
 private slots:
     void fensterNeusProdukt();
     void beiCellChanged(int reihe, int spalte);
     void hinzufuegenLeereZeile();
     void gesammtePreisInEuroBerechnenUndSetzen();
+    void mwStAktuallisieren();
+
 
 };
 #endif // MAINWINDOW_H
