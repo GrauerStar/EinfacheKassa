@@ -28,6 +28,8 @@ private:
     Ui::MainWindow *ui;
     Speicher& speicher = Speicher::instance();
 
+    QString test = "Hallo";
+
 
 
 
@@ -38,6 +40,8 @@ private slots:
     void hinzufuegenLeereZeile();
     void gesammtePreisInEuroBerechnenUndSetzen();
     void mwStAktuallisieren();
+
+
 
 
 };
